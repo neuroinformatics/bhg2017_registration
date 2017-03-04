@@ -1,16 +1,17 @@
-import os
-# import Image, ImageDraw
 from PIL import Image
+import sys
 import csv
-# from PIL import ImageDraw
 import matplotlib.pyplot as plt
 
 
 def draw_plot(image_path, out_image_path, landmark_file):
     img = Image.open(image_path)
-    print(img.size)
+    print('Image Size: ', img.size)
     raw_image = img.getdata()
 
+    cmap = plt.get_cmap('rainbow')
+
+    pos_list = []
     out_raw_image = []
     for pix in raw_image:
         out_raw_image.append((pix, pix, pix))
@@ -20,7 +21,15 @@ def draw_plot(image_path, out_image_path, landmark_file):
         next(reader)
 
         for row in reader:
-            print(row)
+            pos_x = round(float(row[0]), 0)
+            pos_y = round(float(row[1]), 0)
+            pos = int(pos_y * int(img.size[0]) + pos_x)
+            pos_list.append(pos)
+
+    print("Number of Landmarks: ", len(pos_list))
+    for i, pos in enumerate(pos_list):
+        color = cmap(float(i)/len(pos_list))
+        out_raw_image[pos] = (int(255*color[0]), int(255*color[1]), int(255*color[2]))
 
     out_img = Image.new('RGB', img.size)
     out_img.putdata(out_raw_image)
@@ -29,8 +38,15 @@ def draw_plot(image_path, out_image_path, landmark_file):
 
 if __name__ == '__main__':
 
-    filename = "./data/Reslice_canon_T2star_r_clipped0109.tif"
-    out_filename = "./landmarks.png"
-    landmark_file = "kp.txt"
+    if len(sys.argv) < 4 :
+        print("Usage: $ %s [INPUT IMAGE] [LANDMARK LIST] [OUTPUT IMAGE]" % "show_landmark.py")
+        filename = "./data/Reslice_canon_T2star_r_clipped0109.tif"
+        landmark_file = "data/kp.txt"
+        out_filename = "./landmarks.png"
+        # exit()
+    else:
+        filename = sys.argv[1]
+        landmark_file = sys.argv[2]
+        out_filename = sys.argv[3]
 
     draw_plot(filename, out_filename, landmark_file)
