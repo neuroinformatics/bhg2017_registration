@@ -8,21 +8,23 @@ def draw_plot(image_path, out_image_path, landmark_file):
     img = Image.open(image_path)
     print('Image Size: ', img.size)
     raw_image = img.getdata()
-
     cmap = plt.get_cmap('rainbow')
 
     pos_list = []
     out_raw_image = []
     for pix in raw_image:
-        out_raw_image.append((pix, pix, pix))
+        # out_raw_image.append((pix, pix, pix))
+        val = int(round((pix[0]+pix[1]+pix[2])/3, 0))
+        out_raw_image.append((val, val, val))
 
     with open(landmark_file, 'r') as f:
         reader = csv.reader(f, delimiter=' ')
         next(reader)
+        next(reader)
 
         for row in reader:
-            pos_x = round(float(row[0]), 0)
-            pos_y = round(float(row[1]), 0)
+            pos_x = round(float(row[1]), 0)
+            pos_y = round(float(row[2]), 0)
             pos = int(pos_y * int(img.size[0]) + pos_x)
             pos_list.append(pos)
 
@@ -40,8 +42,10 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 4 :
         print("Usage: $ %s [INPUT IMAGE] [LANDMARK LIST] [OUTPUT IMAGE]" % "show_landmark.py")
-        filename = "./data/Reslice_canon_T2star_r_clipped0109.tif"
-        landmark_file = "data/kp.txt"
+        # filename = "./data/Reslice_canon_T2star_r_clipped0109.tif"
+        filename = "./data/CD00016.1-Adra1b.tif"
+        # landmark_file = "data/kp.txt"
+        landmark_file = "data/best_testmatch_Points.txt"
         out_filename = "./landmarks.png"
         # exit()
     else:
